@@ -4,11 +4,11 @@ const $ = JQuery;
 import ChessBoard from "chessboardjs";
 import AI from "./ai";
 
-export default class GameManager {
+export default class GameManager extends EventTarget {
   constructor(game, containerId, aiFunc) {
+    super();
     this.game = game;
     this.aiFunc = aiFunc || (new AI()).random;
-    console.log('gameManager init');
     this.board = ChessBoard('board', {
       draggable: true,
       position: 'start',
@@ -18,7 +18,10 @@ export default class GameManager {
       onMouseoverSquare: this.onMouseoverSquare.bind(this),
       onSnapEnd: this.updateBoard.bind(this)
     });
-    console.log('gameManager init DONE');
+  }
+
+  dispatchMove() {
+    this.dispatchEvent(new Event('move'));
   }
 
   calculateBestMove() {
@@ -27,19 +30,26 @@ export default class GameManager {
 
   checkGameOver() {
     if (this.game.game_over()) {
-      return alert('Game over');
+      return alert(`GAME OVER! ${this.game.turn() === 'w' ? 'White' : 'Black'} lost!`);
     }
   }
 
   makeBestMove() {
-    this.checkGameOver();
     this.move(this.calculateBestMove());
     this.checkGameOver();
   }
 
-  move(moveToMake) {
-    this.game.move(moveToMake);
+  setPosition(fen) {
+    this.game.load(fen);
     this.updateBoard();
+    this.dispatchMove();
+  }
+
+  move(moveToMake) {
+    const move = this.game.move(moveToMake);
+    this.updateBoard();
+    this.dispatchMove();
+    return move;
   }
 
   updateMoveHistory() {
@@ -47,13 +57,12 @@ export default class GameManager {
     const historyElement = $('#move-history').empty();
     historyElement.empty();
     for (let i = 0; i < moves.length; i = i + 2) {
-      historyElement.append('<span>' + moves[i] + ' ' + (moves[i + 1] ? moves[i + 1] : ' ') + '</span><br>')
+      historyElement.append(`<span class="move">${(i / 2) + 1}.${moves[i]}\t\t\t${(moves[i + 1] ? moves[i + 1] : ' ')}</span>`)
     }
     historyElement.scrollTop(historyElement[0].scrollHeight);
   }
 
   updateBoard() {
-    console.log('gameManager UPDATE_BOARD');
     this.board.position(this.game.fen());
     this.updateMoveHistory();
   }
@@ -74,7 +83,7 @@ export default class GameManager {
   }
 
   onDrop(source, target) {
-    const move = this.game.move({
+    const move = this.move({
       from: source,
       to: target,
       promotion: 'q'
@@ -111,6 +120,12 @@ export default class GameManager {
 
   onMouseoutSquare(/*square, piece*/) {
     this.removeGreySquares();
+  }
+
+  status() {
+    return {
+      fen: this.game.fen()
+    }
   }
 }
 
