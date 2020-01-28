@@ -6,9 +6,9 @@
             <div id="board" class="board m-2"></div>
             <div class="flex flex-col flex-grow mr-3 mt-1 font-bold" v-if="this.presentation">
                 <div class="flex flex-row space-around ml-1">
-                    <button class="m-1 p-1 w-12" @click="presentation.prev()">←</button>
+                    <button class="btn m-1 p-1 w-12" @click="presentation.prev()">←</button>
                     <h1 class="text-2xl flex-grow">{{presentation.current().title}}</h1>
-                    <button class="my-1 p-1 w-12 font-bold" @click="presentation.next()">→</button>
+                    <button class="btn my-1 p-1 w-12 font-bold" @click="presentation.next()">→</button>
                 </div>
                 <div id="slides" class="flex flex-col m-1">
                     <div v-for="(block, i) in this.presentation.current().blocks" v-bind:key="i">
@@ -16,7 +16,7 @@
                             {{block.text}}
                         </p>
                         <button v-if="block.type === 'fen'"
-                                class="m-1 p-1 w-full text-left"
+                                class="btn m-1 p-1 w-full text-left"
                                 @click="setPosition(block.data)">{{i+1}}. {{block.name}}
                         </button>
                     </div>
@@ -28,6 +28,14 @@
                 <StatusBlock :player="'White'" :manager="this.manager"/>
                 <StatusBlock :mode="'counter'" :manager="this.manager"/>
                 <StatusBlock :player="'Black'" :manager="this.manager"/>
+                <div class="flex flex-col justify-around">
+                    <button class="px-1" @click="manager.resume()">▶</button>
+                    <button class="px-1" @click="manager.pause()">❙❙</button>
+                </div>
+                <div class="flex flex-col justify-around">
+                    <button class="px-1" @click="manager.resume()">⎌</button>
+                    <button class="px-1" @click="manager.pause()">→</button>
+                </div>
             </div>
             <div id="move-history" class="flex flex-row flex-wrap m-2"></div>
         </div>
@@ -66,9 +74,14 @@
         this.manager.setPosition(fen)
       },
       init() {
-        this.ai = new AI();
         this.game = new Chess();
-        this.manager = new GameManager(this.game, 'board', this.ai.calculateBestMove);
+        this.manager = new GameManager({
+          game: this.game,
+          containerId: 'board',
+          // whiteAI: null,
+          whiteAI: AI.random,
+          blackAI: AI.preferValueCapture,
+        });
       }
     },
     mounted() {
@@ -85,11 +98,17 @@
     body {
         margin: 0;
         padding: 0;
+        background-color: #ede9f3;
+        background-image: url("../assets/styles/glamorous.svg");
     }
 
     button {
         padding: 10px;
         border: 2px #2c3e50 solid;
+    }
+
+    .btn {
+        background-color: #ede9f3;
     }
 
     .move {

@@ -4,20 +4,30 @@ const $ = JQuery;
 import ChessBoard from "chessboardjs";
 import AI from "./ai";
 
+const promotion = 'q';
+const noop = (() => {
+});
+
 export default class GameManager extends EventTarget {
-  constructor(game, containerId, aiFunc) {
+  constructor({ game, containerId, whiteAI, blackAI }) {
     super();
     this.game = game;
-    this.aiFunc = aiFunc || (new AI()).random;
-    this.board = ChessBoard('board', {
+    this.paused = false;
+    this.whiteAi = whiteAI;
+    this.blackAi = blackAI;
+    this.board = ChessBoard(containerId, {
       draggable: true,
       position: 'start',
+      moveSpeed: 300,
+      snapSpeed: 100,
+      snapbackSpeed: 400,
       onDragStart: this.onDragStart.bind(this),
       onDrop: this.onDrop.bind(this),
       onMouseoutSquare: this.onMouseoutSquare.bind(this),
       onMouseoverSquare: this.onMouseoverSquare.bind(this),
       onSnapEnd: this.updateBoard.bind(this)
     });
+    this.makeBestMove();
   }
 
   dispatchMove() {
@@ -25,18 +35,47 @@ export default class GameManager extends EventTarget {
   }
 
   calculateBestMove() {
-    return this.aiFunc(this.game)
+    const aiFunc = (this.game.turn() === 'w' ? this.whiteAI : this.blackAI);
+    return (aiFunc || noop)(this.game)
+  }
+
+  pause() {
+    this.paused = true;
+  }
+
+  resume() {
+    this.paused = false;
+    this.makeBestMove();
   }
 
   checkGameOver() {
     if (this.game.game_over()) {
-      return alert(`GAME OVER! ${this.game.turn() === 'w' ? 'White' : 'Black'} lost!`);
+      this.pause();
+      if (this.game.in_draw()) {
+        alert(`Game over! It's a DRAW.`);
+      } else {
+        alert(`Game over! ${this.game.turn() === 'w' ? 'WHITE' : 'BLACK'} lost!`);
+      }
+      return true;
     }
+    return false;
   }
 
   makeBestMove() {
-    this.move(this.calculateBestMove());
-    this.checkGameOver();
+    if (this.paused) {
+      return;
+    }
+
+    const currentTurn = this.game.turn();
+    if ((currentTurn === 'w' && this.whiteAI) || (currentTurn === 'b' && this.blackAI)) {
+      //this.pause();
+      setTimeout(() => {
+        const nextMove = this.calculateBestMove();
+        // this.resume();
+        console.log(currentTurn, ((currentTurn === 'w' && this.whiteAI) || (currentTurn === 'b' && this.blackAI)), nextMove.san || nextMove);
+        this.move(nextMove);
+      }, Math.round(Math.random() * 500) + 350)
+    }
   }
 
   setPosition(fen) {
@@ -45,10 +84,18 @@ export default class GameManager extends EventTarget {
     this.dispatchMove();
   }
 
-  move(moveToMake) {
+  move(moveToMake, auto = true) {
+    if (this.checkGameOver()) {
+      return;
+    }
     const move = this.game.move(moveToMake);
-    this.updateBoard();
+    if (auto) {
+      this.updateBoard();
+    }
     this.dispatchMove();
+    this.removeGreySquares();
+    this.updateMoveHistory();
+    this.makeBestMove();
     return move;
   }
 
@@ -71,7 +118,7 @@ export default class GameManager extends EventTarget {
     if (
       this.game.in_checkmate()
       || this.game.in_draw()
-      || piece.search(/^b/) !== -1
+      //|| piece.search(/^b/) !== -1
     ) {
       // Block dragging on game end, or opponent's pieces.
       return false;
@@ -82,20 +129,16 @@ export default class GameManager extends EventTarget {
     $('#board .square-55d63').css('background', '');
   }
 
-  onDrop(source, target) {
-    const move = this.move({
-      from: source,
-      to: target,
-      promotion: 'q'
-    });
-
-    this.removeGreySquares();
-    if (move === null) {
+  onDrop(from, to) {
+    if (this.checkGameOver()) {
       return 'snapback';
     }
 
-    this.updateMoveHistory();
-    window.setTimeout(this.makeBestMove.bind(this), 250);
+    const move = this.move({ from, to, promotion }, false);
+
+    if (move === null) {
+      return 'snapback';
+    }
   }
 
   greySquare(square) {
@@ -126,6 +169,24 @@ export default class GameManager extends EventTarget {
     return {
       fen: this.game.fen()
     }
+  }
+
+  get whiteAI() {
+    return this.whiteAi;
+  }
+
+  set whiteAI(val) {
+    this.whiteAi = val;
+    this.makeBestMove();
+  }
+
+  get blackAI() {
+    return this.blackAi;
+  }
+
+  set blackAI(val) {
+    this.blackAi = val;
+    this.makeBestMove();
   }
 }
 
