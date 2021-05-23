@@ -12,7 +12,7 @@ export default class GameManager extends EventTarget {
   constructor({ game, containerId, whiteAI, blackAI }) {
     super();
     this.game = game;
-    this.paused = false;
+    this.paused = true;
     this.whiteAi = whiteAI;
     this.blackAi = blackAI;
     this.board = ChessBoard(containerId, {
@@ -27,7 +27,15 @@ export default class GameManager extends EventTarget {
       onMouseoverSquare: this.onMouseoverSquare.bind(this),
       onSnapEnd: this.updateBoard.bind(this)
     });
-    this.makeBestMove();
+
+    this.board.resizeObserver = new ResizeObserver(() => {
+      this.board.resize();
+    }).observe(document.getElementById(containerId));
+
+    // document.getElementById(containerId).addEventListener('resize', () => {
+    //   debugger;
+    //   this.board.resize()
+    // })
   }
 
   dispatchMove() {
@@ -36,7 +44,7 @@ export default class GameManager extends EventTarget {
 
   calculateBestMove() {
     const aiFunc = (this.game.turn() === 'w' ? this.whiteAI : this.blackAI);
-    return (aiFunc || noop)(this.game)
+    return (AI[aiFunc] || noop)(this.game)
   }
 
   pause() {
@@ -44,6 +52,9 @@ export default class GameManager extends EventTarget {
   }
 
   resume() {
+    if (!this.paused) {
+      return;
+    }
     this.paused = false;
     this.makeBestMove();
   }
@@ -54,7 +65,7 @@ export default class GameManager extends EventTarget {
       if (this.game.in_draw()) {
         alert(`Game over! It's a DRAW.`);
       } else {
-        alert(`Game over! ${this.game.turn() === 'w' ? 'WHITE' : 'BLACK'} lost!`);
+        alert(`Game over! ${this.game.turn() !== 'w' ? 'WHITE' : 'BLACK'} WINS!!`);
       }
       return true;
     }
@@ -66,14 +77,18 @@ export default class GameManager extends EventTarget {
       return;
     }
 
+    if (this.checkGameOver()) {
+      return;
+    }
+
     const currentTurn = this.game.turn();
     if ((currentTurn === 'w' && this.whiteAI) || (currentTurn === 'b' && this.blackAI)) {
-      //this.pause();
       setTimeout(() => {
         const nextMove = this.calculateBestMove();
-        // this.resume();
-        console.log(currentTurn, ((currentTurn === 'w' && this.whiteAI) || (currentTurn === 'b' && this.blackAI)), nextMove.san || nextMove);
-        this.move(nextMove);
+        if (nextMove) {
+          console.log(currentTurn, ((currentTurn === 'w' && this.whiteAI) || (currentTurn === 'b' && this.blackAI)), nextMove.san || nextMove);
+          this.move(nextMove);
+        }
       }, Math.round(Math.random() * 500) + 350)
     }
   }

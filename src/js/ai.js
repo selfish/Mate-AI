@@ -2,13 +2,27 @@ const random = arr => arr[Math.floor(Math.random() * arr.length)];
 const sort = (arr, valuation) => arr.sort((a, b) => (valuation(b) - valuation(a)));
 
 class AI {
+  // List of AI Algorithms Available:
+
+  get algorithms() {
+    return [
+      'player',
+      'random',
+      'preferCapture',
+      'preferValueCapture'
+    ]
+  }
+
+  // HUMAN PLAYER:
+  get player() {return null}
+
+  //RANDOM MOVES:
   static random(game) {
     const newGameMoves = game.moves();
     return random(newGameMoves);
   }
 
   // PREFER CAPTURES
-
   static preferCapture(game) {
     const legalMoves = game.moves({ verbose: true });
     const capturingMoves = legalMoves.filter(move => move.captured);
@@ -40,4 +54,4 @@ class AI {
   //
 }
 
-export default AI
+export default AI;

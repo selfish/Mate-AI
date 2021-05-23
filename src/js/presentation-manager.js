@@ -1,5 +1,6 @@
 const FEN = 'fen';
 const TXT = 'txt';
+const TIT = 'title';
 
 export default class PresentationManager {
   constructor() {
@@ -7,9 +8,36 @@ export default class PresentationManager {
       {
         title: "Hello Chess",
         blocks: [
-          { type: TXT, text: "Hello World!" },
+          { type: TIT, text: "Hello Chess World!" },
+          {
+            type: TXT, text: `Chess is chess and is cool
+whichsad asd asd sad
+asd asd asd
+asd
+as\n
+ad\n
+asd`
+          },
           { type: FEN, name: "Initial Position", data: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" },
-          { type: TXT, text: "Hello World!" },
+          { type: TXT, text: "Chess is chess and is cool" },
+          { type: FEN, name: "Initial Position", data: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" },
+          { type: TIT, text: "Let's Play!" },
+          { type: FEN, name: "Initial Position", data: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" },
+
+          { type: TIT, text: "Hello Chess World!" },
+          {
+            type: TXT, text: `Chess is chess and is cool
+whichsad asd asd sad
+asd asd asd
+asd
+as\n
+ad\n
+asd`
+          },
+          { type: FEN, name: "Initial Position", data: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" },
+          { type: TXT, text: "Chess is chess and is cool" },
+          { type: FEN, name: "Initial Position", data: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" },
+          { type: TIT, text: "Let's Play!" },
           { type: FEN, name: "Initial Position", data: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" },
         ]
       }, {
