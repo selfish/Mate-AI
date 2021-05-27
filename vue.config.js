@@ -5,7 +5,7 @@ module.exports = {
     plugins: [
       require('tailwindcss'),
       require('autoprefixer'),
-      new Copy([{ from: './node_modules/chessboardjs/www/img/', to: './img' }])
+      new Copy({patterns:[{ from: './node_modules/chessboardjs/www/img/', to: './img' }]})
     ],
   }
 };

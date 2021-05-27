@@ -31,11 +31,6 @@ export default class GameManager extends EventTarget {
     this.board.resizeObserver = new ResizeObserver(() => {
       this.board.resize();
     }).observe(document.getElementById(containerId));
-
-    // document.getElementById(containerId).addEventListener('resize', () => {
-    //   debugger;
-    //   this.board.resize()
-    // })
   }
 
   dispatchMove() {
@@ -62,11 +57,13 @@ export default class GameManager extends EventTarget {
   checkGameOver() {
     if (this.game.game_over()) {
       this.pause();
-      if (this.game.in_draw()) {
-        alert(`Game over! It's a DRAW.`);
-      } else {
-        alert(`Game over! ${this.game.turn() !== 'w' ? 'WHITE' : 'BLACK'} WINS!!`);
-      }
+      setTimeout(() => {
+        if (this.game.in_draw()) {
+          alert(`Game over! It's a DRAW.`);
+        } else {
+          alert(`Game over! ${this.game.turn() !== 'w' ? 'WHITE' : 'BLACK'} WINS!!`);
+        }
+      }, 500);
       return true;
     }
     return false;
@@ -119,7 +116,7 @@ export default class GameManager extends EventTarget {
     const historyElement = $('#move-history').empty();
     historyElement.empty();
     for (let i = 0; i < moves.length; i = i + 2) {
-      historyElement.append(`<span class="move">${(i / 2) + 1}.${moves[i]}\t\t\t${(moves[i + 1] ? moves[i + 1] : ' ')}</span>`)
+      historyElement.append(`<span class="move">${(i / 2) + 1}.  ${moves[i]}  ${(moves[i + 1] ? moves[i + 1] : ' ')}</span>`)
     }
     historyElement.scrollTop(historyElement[0].scrollHeight);
   }

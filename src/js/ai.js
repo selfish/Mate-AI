@@ -4,7 +4,7 @@ const sort = (arr, valuation) => arr.sort((a, b) => (valuation(b) - valuation(a)
 class AI {
   // List of AI Algorithms Available:
 
-  get algorithms() {
+  static get algorithms() {
     return [
       'player',
       'random',
