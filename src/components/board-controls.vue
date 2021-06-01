@@ -99,14 +99,26 @@ export default {
 
 .board-controls {
   display: grid;
-  grid-template-columns: max-content 1fr max-content 1fr;
-  grid-template-rows: min-content min-content 1fr;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: min-content min-content min-content 1fr;
   gap: 10px;
   grid-template-areas:
+    "white-ai black-ai"
+    "white-status black-status"
+    "evaluation controls"
+    "moves moves";
+  grid-area: board-controls;
+}
+
+@media (min-width: 1500px) {
+  .board-controls {
+    grid-template-columns: max-content 1fr max-content 1fr;
+    grid-template-rows: min-content min-content 1fr;
+    grid-template-areas:
     "white-ai . black-ai ."
     "white-status evaluation black-status controls"
     "moves moves moves moves";
-  grid-area: board-controls;
+  }
 }
 
 .white-ai {

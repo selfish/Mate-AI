@@ -1,26 +1,12 @@
 <template>
   <div>
-    <div id="app" class="grid-container px-24">
+    <div id="app" class="grid-container xl:px-24">
       <div class="header"><h1 class="text-4xl font-black m-2">A Selfish Chess AI</h1></div>
-
       <div id="board" class="chessboard"/>
-
       <board-controls v-bind:manager="manager" v-bind:whiteAi="manager.whiteAI" v-bind:blackAi="manager.blackAI" v-on:set-ai="setAI(...arguments)"/>
-
       <presentation></presentation>
     </div>
 
-    <div id="aapp" class="ccontainer hidden">
-
-      <div class="flex flex-row">
-
-        <div class="flex flex-col items-center flex-grow mr-3 mt-1 font-bold" v-if="this.presentation">
-          <div class="flex flex-row space-around ml-1 w-9/12">
-
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -78,9 +64,6 @@ export default {
 </script>
 
 <style lang="scss">
-div {
-  //box-shadow: inset 0 0 10px #ff9799;
-}
 
 body {
   margin: 0;
@@ -104,11 +87,10 @@ body {
 
   display: grid;
   grid-template-columns: 35% 1fr;
-  grid-template-rows: max-content min-content min-content 1fr;
-  gap: 10px 100px;
+  grid-template-rows: max-content min-content 1fr;
+  gap: 10px 10px;
   grid-template-areas:
-    "header header"
-    "chessboard presentation"
+    "chessboard header"
     "chessboard presentation"
     "board-controls presentation";
 }
